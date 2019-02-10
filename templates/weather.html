@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="container">
+  <div class="row">
+	    <div class="col-lg-3"></div>
+	    <div class="col-lg-6">
+	    	<br><br>
+	    	<form class="container">
+				<div class="input-group mb-3 mt-4">
+				  <input type="text" class="form-control" placeholder="Enter Your City"aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
+				  <div class="input-group-append" id="button-addon4">
+					    <button class="btn btn-outline-primary" type="submit">Add City</button>
+					    <a href="/logout"><button class="btn btn-outline-danger" type="button">Logout</button></a>
+				  </div>
+				</div>
+	 		</form>
+	    </div>
+  </div>
+</div>
+<br><br>
+<div class="container">
+	<table class="table">
+	  <thead>
+		    <tr>
+		      <th scope="col">Sno</th>
+		      <th scope="col">City</th>
+		      <th scope="col">Icon</th>
+		      <th scope="col">Temperature</th>
+		      <th scope="col">Description</th>
+		      <th scope="col">DateTime</th>
+		      <th scope="col">Update</th>
+		      <th scope="col">Remove city</th>
+		    </tr>
+	  </thead>
+	  <tbody>
+		    <tr>
+		      <th scope="row">1</th>
+		      <td>Mark</td>
+		      <td>Otto</td>
+		      <td>@mdo</td>
+		      <td>@mdo</td>
+		      <td>@mdo</td>
+		      <td><a href="/logout"><button type="button" class="btn btn-outline-success">Update</button></td></a>
+		      <td><a href="/logout"><button type="button" class="btn btn-outline-success">Remove</button></td></a>
+		    </tr>
+		    <tr>
+		      <th scope="row">2</th>
+		      <td>Jacob</td>
+		      <td>Thornton</td>
+		      <td>@fat</td>
+		    </tr>
+		    <tr>
+		      <th scope="row">3</th>
+		      <td>Larry</td>
+		      <td>the Bird</td>
+		      <td>@twitter</td>
+		    </tr>
+	  </tbody>
+	</table>
+</div>
+
+
+{% endblock %}
