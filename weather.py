@@ -1,16 +1,19 @@
 # import requests
 # from pprint import pprint
-#
-# while(1):
-#     city = input('enter any city')
-#     r = requests.get('https://api.openweathermap.org/data/2.5/weather?q={}&APPID=8b39e46493302d8e2f48506253b2ae65'.format(city))
-#     print(r)
-#     json_data = r.json()
-#     pprint(json_data)
+# #
+# # while(1):
+# #     city = input('enter any city')
+# #     r = requests.get('https://api.openweathermap.org/data/2.5/weather?q={}&APPID=8b39e46493302d8e2f48506253b2ae65'.format(city))
+# #     # print(r)
+# #     json_data = r.json()
+# #     pprint(json_data)
+import requests
+from pprint import pprint
 from flask import Flask, flash, g, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -97,11 +100,38 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/weather/<string:username>')
+@app.route('/weather/<string:username>', methods=['GET','POST'])
 def weather(username):
     if g.user:
-        pass
-    return render_template('weather.html')
+        user = User.query.filter_by(username=username).first()
+
+        if request.method == 'POST':
+            city = request.form.get('city')
+            url = f"https://api.openweathermap.org/data/2.5/weather?q={city}"
+            api_key = '8b39e46493302d8e2f48506253b2ae65'
+            complete_url = url+'&'+'APPID='+api_key
+            r = requests.get(complete_url)
+            json_data = r.json()
+            # pprint(json_data)
+
+            if json_data['cod'] == 200:
+                # pprint(json_data)
+                temperature = json_data['main']['temp']
+                temperature = temperature - 273.15
+                description = json_data['weather'][0]['description']
+                icon = json_data['weather'][0]['icon']
+                print(temperature,description,icon)
+                weather = City(city_name=city, temperature=temperature, icon=icon, description=description, datetime=datetime.now(), user=user)
+                db.session.add(weather)
+                db.session.commit()
+
+            elif json_data['cod'] == '404':
+                pass
+                # flash('city not found')
+
+        cities = user.cities
+        return render_template('weather.html', username=username, cities=cities)
+    return render_template('index.html')
 
 @app.route('/logout')
 def logout():
