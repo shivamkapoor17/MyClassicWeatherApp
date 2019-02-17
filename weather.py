@@ -35,7 +35,7 @@ class City(db.Model):
     temperature = db.Column(db.String(10), nullable=False)
     icon = db.Column(db.String(10), nullable=False)
     description = db.Column(db.String(29), nullable=False)
-    datetime = db.column(db.DateTime)
+    datetime = db.Column(db.DateTime)
     user_sno = db.Column(db.Integer, db.ForeignKey('user.sno'), nullable=False)
 
 
@@ -67,8 +67,9 @@ def signup():
         hashed_password = generate_password_hash(password, method='sha256')
 
         if password != repassword:
+            pass
             # flash('password not matched')
-            return render_template('signup.html')
+            #return render_template('signup.html')
 
         #else
         user = User(username=username, Email=email, password=hashed_password)
@@ -117,11 +118,11 @@ def weather(username):
             if json_data['cod'] == 200:
                 # pprint(json_data)
                 temperature = json_data['main']['temp']
-                temperature = temperature - 273.15
+                temperature = round((temperature - 273.15), 3)
                 description = json_data['weather'][0]['description']
                 icon = json_data['weather'][0]['icon']
-                print(temperature,description,icon)
-                weather = City(city_name=city, temperature=temperature, icon=icon, description=description, datetime=datetime.now(), user=user)
+
+                weather = City(city_name=city, temperature=temperature, icon=icon, datetime=datetime.now(), description=description, user=user)
                 db.session.add(weather)
                 db.session.commit()
 
@@ -137,6 +138,43 @@ def weather(username):
 def logout():
     if g.user:
         session.pop('user', None)
+
+    return redirect(url_for('index'))
+
+@app.route('/update/<string:sno>')
+def update(sno):
+    if g.user:
+        city = City.query.get(sno)
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city.city_name}"
+        api_key = '8b39e46493302d8e2f48506253b2ae65'
+        complete_url = url + '&' + 'APPID=' + api_key
+        r = requests.get(complete_url)
+        json_data = r.json()
+
+        temperature = json_data['main']['temp']
+        temperature = round((temperature - 273.15), 3)
+        description = json_data['weather'][0]['description']
+        icon = json_data['weather'][0]['icon']
+        dateTime = datetime.now()
+
+        city.temperature = temperature
+        city.description = description
+        city.icon = icon
+        city.datetime = dateTime
+        db.session.commit()
+        # pprint(json_data)
+        # city_name temperature icon description sno datetime
+        # city.city_nam
+
+
+    return redirect(url_for('index'))
+
+@app.route('/remove/<string:sno>')
+def remove(sno):
+    if g.user:
+        remove_city = City.query.get(sno)
+        db.session.delete(remove_city)
+        db.session.commit()
 
     return redirect(url_for('index'))
 

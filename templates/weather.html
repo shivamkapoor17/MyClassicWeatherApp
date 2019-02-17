@@ -7,6 +7,7 @@
 	    <div class="col-lg-6">
 	    	<br><br>
 	    	<form class="container" action="/weather/{{username}}" method="post">
+	    		<!--<h1>welcome {{username}}</h1>-->
 				<div class="input-group mb-3 mt-4">
 				  <input type="text" class="form-control" name="city" placeholder="Enter Your City"aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
 				  <div class="input-group-append" id="button-addon4">
@@ -34,17 +35,18 @@
 		    </tr>
 	  </thead>
 	  <tbody>
+	  	
 	  	{% if cities %}
-	  	{% for city in cities %}
+	  	{% for city in cities | reverse %}
 		    <tr>
-		      <th scope="row">1</th>
+		      <th scope="row">{{ loop.index }}</th>
 		      <td>{{ city.city_name }}</td>
 		      <td> <img src="http://openweathermap.org/img/w/{{city.icon}}.png" alt="image"> </td>
 		      <td>{{ city.temperature }}&#x2103;</td>
 		      <td>{{ city.description }}</td>
-		      <td></td>
-		      <td><a href="/logout"><button type="button" class="btn btn-outline-success">Update</button></td></a>
-		      <td><a href="/logout"><button type="button" class="btn btn-outline-success">Remove</button></td></a>
+		      <td>{{ city.datetime}}</td>
+		      <td><a href="/update/{{ city.sno }}"><button type="button" class="btn btn-outline-success">Update</button></td></a>
+		      <td><a href="/remove/{{ city.sno }}"><button type="button" class="btn btn-outline-danger">Remove</button></td></a>
 		    </tr>
 		    {% endfor %}
 		    {%endif%}
