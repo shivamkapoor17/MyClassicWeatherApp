@@ -1,7 +1,7 @@
-
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -11,56 +11,55 @@
     <link rel="icon" href="{{ url_for('static',filename='img/santa.png')}}" type="image/gif" sizes="16x16">
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-
-
     <style>
-      .bd-placeholder-img {
+    .bd-placeholder-img {
         font-size: 1.125rem;
         text-anchor: middle;
-      }
+    }
 
-      @media (min-width: 768px) {
+    @media (min-width: 768px) {
         .bd-placeholder-img-lg {
-          font-size: 3.5rem;
+            font-size: 3.5rem;
         }
-      }
+    }
     </style>
     <!-- Custom styles for this template -->
     <link href="{{ url_for('static',filename='css/album.css')}}" rel="stylesheet">
-  </head>
-  <body>
-<header>
-   <nav class="navbar navbar-dark bg-primary">
-      <span class="navbar-brand mb-0 h1">Classic Weather App</span>
-  </nav>
-</header>
+</head>
 
-<main role="main">
+<body>
+    <header>
+        <nav class="navbar navbar-dark bg-primary">
+            <span class="navbar-brand mb-0 h1">Classic Weather App</span>
+        </nav>
+    </header>
+    <main role="main">
+        <section class="jumbotron text-center">
+            <div class="container">
+                <h1 class="jumbotron-heading">Classic Weather App</h1>
+                <p class="lead text-muted">It is now easy to see the weather of your city-only you have to just login/signup and add your city.</p>
+                <br>
+                <p>
+                    <a href="/login" class="btn btn-success my-2">Login</a> OR
+                    <a href="/signup" class="btn btn-danger my-2">Sign Up</a>
+                </p>
+            </div>
+        </section>
+    </main>
+    <br><br><br><br><br><br><br>
+    <footer class="text-muted mt-5">
+        <div class="container">
+            <p class="float-right">
+                <a href="#">Back to top</a>
+            </p>
+            <p>Copyright &copy; ClassicWeatherApp 2019-2020</p>
+        </div>
+    </footer>
+    <script src="{{ url_for('static',filename='js/jquery-3.3.1.slim.min.js')}}" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script>
+    window.jQuery || document.write('<script src="/docs/4.2/assets/js/vendor/jquery-slim.min.js"><\/script>')
+    </script>
+    <script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js')}}" integrity="sha384-zDnhMsjVZfS3hiP7oCBRmfjkQC4fzxVxFhBx8Hkz2aZX8gEvA/jsP3eXRCvzTofP" crossorigin="anonymous"></script>
+</body>
 
-  <section class="jumbotron text-center">
-    <div class="container">
-      <h1 class="jumbotron-heading">Classic Weather App</h1>
-      <p class="lead text-muted">It is now easy to see the weather of your city-only you have to just login/signup and add your city.</p>
-      <br>
-      <p>
-        <a href="/login" class="btn btn-success my-2">Login</a> OR
-        <a href="/signup" class="btn btn-danger my-2">Sign Up</a>
-      </p>
-    </div>
-  </section>
-
-
-</main>
-<br><br><br><br><br><br><br>
-<footer class="text-muted mt-5">
-  <div class="container">
-    <p class="float-right">
-      <a href="#">Back to top</a>
-    </p>
-    <p>Copyright &copy; ClassicWeatherApp 2019-2020</p>
-    
-  </div>
-</footer>
-<script src="{{ url_for('static',filename='js/jquery-3.3.1.slim.min.js')}}" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-      <script>window.jQuery || document.write('<script src="/docs/4.2/assets/js/vendor/jquery-slim.min.js"><\/script>')</script><script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js')}}" integrity="sha384-zDnhMsjVZfS3hiP7oCBRmfjkQC4fzxVxFhBx8Hkz2aZX8gEvA/jsP3eXRCvzTofP" crossorigin="anonymous"></script></body>
 </html>

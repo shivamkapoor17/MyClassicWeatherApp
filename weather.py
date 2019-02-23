@@ -1,3 +1,9 @@
+# favicon icon
+# city already added
+# code cleaning
+# sql not start error
+# man kar gaya to forget password
+
 # import requests
 # from pprint import pprint
 # #
@@ -14,6 +20,8 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
 from datetime import datetime
+from sqlalchemy.exc import IntegrityError
+from requests.exceptions import ConnectionError
 import os
 
 app = Flask(__name__)
@@ -62,21 +70,26 @@ def signup():
         username = request.form.get('uname')
         email = request.form.get('email')
         password = request.form.get('password')
-        repassword = request.form.get('repassword')
+        confirm_password = request.form.get('confirmpassword')
 
-        hashed_password = generate_password_hash(password, method='sha256')
+        if username == "" or email == "" or password == "" or confirm_password == "":
+            flash('You miss some of the entries. Please complete the entries')
 
-        if password != repassword:
-            pass
-            # flash('password not matched')
-            #return render_template('signup.html')
+        elif password != confirm_password:
+            flash('Password fields not matched. Please enter same password in both the password fields')
 
-        #else
-        user = User(username=username, Email=email, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-        session['user'] = username
-        return redirect(url_for('weather', username=username))
+
+        else:
+            hashed_password = generate_password_hash(password, method='sha256')
+            try:
+                user = User(username=username, Email=email, password=hashed_password)
+                db.session.add(user)
+                db.session.commit()
+            except IntegrityError:
+                flash('Username already exists Please choose different Username ')
+            else:
+                session['user'] = username
+                return redirect(url_for('weather', username=username))
 
     return render_template('signup.html')
 
@@ -96,8 +109,8 @@ def login():
             return redirect(url_for('weather', username=user.username))
 
         else:
-            #invalid credintials
-            pass
+            flash('Please enter correct Username and Password')
+
 
     return render_template('login.html')
 
@@ -108,29 +121,35 @@ def weather(username):
 
         if request.method == 'POST':
             city = request.form.get('city')
-            url = f"https://api.openweathermap.org/data/2.5/weather?q={city}"
             api_key = '8b39e46493302d8e2f48506253b2ae65'
-            complete_url = url+'&'+'APPID='+api_key
-            r = requests.get(complete_url)
-            json_data = r.json()
+            payload = {'q': city, 'APPID': api_key}
+            url = f"https://api.openweathermap.org/data/2.5/weather"
+
+            try:
+                r = requests.get(url, payload)
+            except ConnectionError:
+                flash('Please check the Internet connection', 'info')
+            else:
+                json_data = r.json()
             # pprint(json_data)
 
-            if json_data['cod'] == 200:
-                # pprint(json_data)
-                temperature = json_data['main']['temp']
-                temperature = round((temperature - 273.15), 3)
-                description = json_data['weather'][0]['description']
-                icon = json_data['weather'][0]['icon']
+                if json_data['cod'] == 200:
+                    # pprint(json_data)
+                    temperature = json_data['main']['temp']
+                    temperature = round((temperature - 273.15), 3)
+                    description = json_data['weather'][0]['description']
+                    icon = json_data['weather'][0]['icon']
 
-                weather = City(city_name=city, temperature=temperature, icon=icon, datetime=datetime.now(), description=description, user=user)
-                db.session.add(weather)
-                db.session.commit()
+                    weather = City(city_name=city, temperature=temperature, icon=icon, datetime=datetime.now(), description=description, user=user)
+                    db.session.add(weather)
+                    db.session.commit()
 
-            elif json_data['cod'] == '404':
-                pass
-                # flash('city not found')
+                elif json_data['cod'] == '404':
+                    flash('Please enter valid city', 'error')
 
         cities = user.cities
+        # for city in cities:
+        #     print(city.city_name)
         return render_template('weather.html', username=username, cities=cities)
     return render_template('index.html')
 
@@ -145,26 +164,30 @@ def logout():
 def update(sno):
     if g.user:
         city = City.query.get(sno)
-        url = f"https://api.openweathermap.org/data/2.5/weather?q={city.city_name}"
         api_key = '8b39e46493302d8e2f48506253b2ae65'
-        complete_url = url + '&' + 'APPID=' + api_key
-        r = requests.get(complete_url)
-        json_data = r.json()
+        payload = {'q': city.city_name, 'APPID': api_key}
+        url = f"https://api.openweathermap.org/data/2.5/weather"
+        try:
+            r = requests.get(url, payload)
+        except ConnectionError:
+            flash('Please check the Internet connection', 'info')
+        else:
+            json_data = r.json()
 
-        temperature = json_data['main']['temp']
-        temperature = round((temperature - 273.15), 3)
-        description = json_data['weather'][0]['description']
-        icon = json_data['weather'][0]['icon']
-        dateTime = datetime.now()
+            temperature = json_data['main']['temp']
+            temperature = round((temperature - 273.15), 3)
+            description = json_data['weather'][0]['description']
+            icon = json_data['weather'][0]['icon']
+            dateTime = datetime.now()
 
-        city.temperature = temperature
-        city.description = description
-        city.icon = icon
-        city.datetime = dateTime
-        db.session.commit()
-        # pprint(json_data)
-        # city_name temperature icon description sno datetime
-        # city.city_nam
+            city.temperature = temperature
+            city.description = description
+            city.icon = icon
+            city.datetime = dateTime
+            db.session.commit()
+            # pprint(json_data)
+            # city_name temperature icon description sno datetime
+            # city.city_nam
 
 
     return redirect(url_for('index'))

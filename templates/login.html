@@ -1,29 +1,36 @@
 {% extends "layout.html" %}
 {% block body %}
-
-
 <div class="container">
-  <div class="row">
-      <div class="col-lg-3"></div>
-      <div class="col-lg-6">
-          <form class="container mt-4" action="/login" method="post">
-              <h1>Login Form</h1>
-              <div class="form-group mt-4">
-                  <label for="Username">Username</label>
-                  <input type="text" class="form-control" name="uname" id="Username" aria-describedby="emailHelp" placeholder="Enter Username">
-              </div>
-              <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
-              </div>
-                    <button type="submit" class="btn btn-primary mt-2">Login</button>
-           </form>
-      </div>
-  </div>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+        <strong>Invalid Credentials!</strong> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
+            <form class="container mt-4" action="/login" method="post">
+                <h1 class="text-center">Login Form</h1>
+                <div class="form-group mt-4">
+                    <label for="Username">Username</label>
+                    <input type="text" class="form-control" name="uname" id="Username" aria-describedby="emailHelp" placeholder="Enter Username">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Password</label>
+                    <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Login</button>
+            </form>
+        </div>
+    </div>
 </div>
-
 <br><br><br>
 <br><br>
-
-
- {% endblock %}   
+{% endblock %}
