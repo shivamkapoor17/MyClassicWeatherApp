@@ -1,24 +1,12 @@
-# favicon icon
-# city already added
-# code cleaning
+# internet connection and city already added conflict
 # sql not start error
-# man kar gaya to forget password
+# man kar gaya to forget password and confirm password
 
-# import requests
-# from pprint import pprint
-# #
-# # while(1):
-# #     city = input('enter any city')
-# #     r = requests.get('https://api.openweathermap.org/data/2.5/weather?q={}&APPID=8b39e46493302d8e2f48506253b2ae65'.format(city))
-# #     # print(r)
-# #     json_data = r.json()
-# #     pprint(json_data)
-import requests
-from pprint import pprint
 from flask import Flask, flash, g, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_migrate import Migrate
+import requests
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from requests.exceptions import ConnectionError
@@ -47,12 +35,12 @@ class City(db.Model):
     user_sno = db.Column(db.Integer, db.ForeignKey('user.sno'), nullable=False)
 
 
-# city temperature icon description sno datetime
 @app.before_request
 def before_request():
     g.user = None
     if 'user' in session:
         g.user = session['user']
+
 
 @app.route('/')
 def index():
@@ -61,7 +49,8 @@ def index():
 
     return render_template('index.html')
 
-@app.route('/signup', methods=['GET','POST'])
+
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if g.user:
         return redirect(url_for('weather', username=g.user))
@@ -78,7 +67,6 @@ def signup():
         elif password != confirm_password:
             flash('Password fields not matched. Please enter same password in both the password fields')
 
-
         else:
             hashed_password = generate_password_hash(password, method='sha256')
             try:
@@ -93,7 +81,8 @@ def signup():
 
     return render_template('signup.html')
 
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if g.user:
         return redirect(url_for('weather', username=g.user))
@@ -109,49 +98,55 @@ def login():
             return redirect(url_for('weather', username=user.username))
 
         else:
-            flash('Please enter correct Username and Password')
-
+            flash('Please enter correct Username and Password', 'danger')
 
     return render_template('login.html')
 
-@app.route('/weather/<string:username>', methods=['GET','POST'])
+
+@app.route('/weather/<string:username>', methods=['GET', 'POST'])
 def weather(username):
     if g.user:
         user = User.query.filter_by(username=username).first()
 
+        cities = user.cities
+        list_of_cities = []
+        for item in cities:
+            list_of_cities.append(item.city_name)
+
         if request.method == 'POST':
             city = request.form.get('city')
             api_key = '8b39e46493302d8e2f48506253b2ae65'
-            payload = {'q': city, 'APPID': api_key}
-            url = f"https://api.openweathermap.org/data/2.5/weather"
 
-            try:
-                r = requests.get(url, payload)
-            except ConnectionError:
-                flash('Please check the Internet connection', 'info')
+            if city in list_of_cities:
+                flash("Please enter another city", 'warning')
             else:
-                json_data = r.json()
-            # pprint(json_data)
+                payload = {'q': city, 'APPID': api_key}
+                url = f"https://api.openweathermap.org/data/2.5/weather"
 
-                if json_data['cod'] == 200:
-                    # pprint(json_data)
-                    temperature = json_data['main']['temp']
-                    temperature = round((temperature - 273.15), 3)
-                    description = json_data['weather'][0]['description']
-                    icon = json_data['weather'][0]['icon']
+                try:
+                    r = requests.get(url, payload)
+                except ConnectionError:
+                    flash('Please check the Internet connection', 'info')
+                else:
+                    json_data = r.json()
 
-                    weather = City(city_name=city, temperature=temperature, icon=icon, datetime=datetime.now(), description=description, user=user)
-                    db.session.add(weather)
-                    db.session.commit()
+                    if json_data['cod'] == 200:
+                        temperature = json_data['main']['temp']
+                        temperature = round((temperature - 273.15), 3)
+                        description = json_data['weather'][0]['description']
+                        icon = json_data['weather'][0]['icon']
 
-                elif json_data['cod'] == '404':
-                    flash('Please enter valid city', 'error')
+                        weather = City(city_name=city, temperature=temperature, icon=icon, datetime=datetime.now(), description=description, user=user)
+                        db.session.add(weather)
+                        db.session.commit()
 
-        cities = user.cities
-        # for city in cities:
-        #     print(city.city_name)
+                    elif json_data['cod'] == '404':
+                        flash('Please enter valid city', 'error')
+
         return render_template('weather.html', username=username, cities=cities)
-    return render_template('index.html')
+
+    return redirect(url_for('index'))
+
 
 @app.route('/logout')
 def logout():
@@ -159,6 +154,7 @@ def logout():
         session.pop('user', None)
 
     return redirect(url_for('index'))
+
 
 @app.route('/update/<string:sno>')
 def update(sno):
@@ -185,12 +181,9 @@ def update(sno):
             city.icon = icon
             city.datetime = dateTime
             db.session.commit()
-            # pprint(json_data)
-            # city_name temperature icon description sno datetime
-            # city.city_nam
-
 
     return redirect(url_for('index'))
+
 
 @app.route('/remove/<string:sno>')
 def remove(sno):
@@ -200,6 +193,37 @@ def remove(sno):
         db.session.commit()
 
     return redirect(url_for('index'))
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if g.user:
+        username = g.user
+        user = User.query.filter_by(username=username).first()
+
+        if request.method == 'POST':
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            confirm_password = request.form.get('confirm_password')
+
+            if current_password == '' or new_password == '' or confirm_password == '':
+                flash('Please fill the form completely!', 'danger')
+            elif not check_password_hash(user.password, current_password):
+                flash('Current password you have entered is not correct!', 'danger')
+            elif new_password != confirm_password:
+                flash('New password and confirm password you have entered is not same!', 'danger')
+            else:
+                new_hashed_password = generate_password_hash(new_password, method='sha256')
+                user.password = new_hashed_password
+                db.session.commit()
+                flash('Your password is changed successfully. Now you can login with your new password', 'success')
+                session.pop('user', None)
+                return redirect(url_for('login'))
+
+        return render_template('passwordreset.html')
+
+    return redirect(url_for('index'))
+
 
 if __name__=="__main__":
     app.run(debug=True)

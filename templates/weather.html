@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
+
+<dir class="container-fluid">
+	<a href="/reset_password"><button class="btn btn-success float-right">Reset Password</button></a>
+</dir>
 <div class="container">
     {% with messages = get_flashed_messages(category_filter=["info"]) %}
     {% if messages %}
@@ -34,16 +38,29 @@
                 <div class="input-group mb-3 mt-4">
                     <input type="text" class="form-control" name="city" placeholder="Enter Your City" aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
                     <div class="input-group-append" id="button-addon4">
-                        <button class="btn btn-outline-primary" type="submit">Add City</button>
-                        <a href="/logout"><button class="btn btn-outline-danger" type="button">Logout</button></a>
+                        <button class="btn btn-outline-primary" type="submit"><b>Add City</b></button>
+                        <a href="/logout"><button class="btn btn-outline-danger" type="button"><b>Logout</b></button></a>
                     </div>
                 </div>
             </form>
         </div>
+    
     </div>
 </div>
 <br><br>
 <div class="container">
+    {% with messages = get_flashed_messages(category_filter=["warning"]) %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+        <strong>City Is Already Added!</strong> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <table class="table">
         <thead>
             <tr>
@@ -67,8 +84,8 @@
                 <td>{{ city.temperature }}&#x2103;</td>
                 <td>{{ city.description }}</td>
                 <td>{{ city.datetime}}</td>
-                <td><a href="/update/{{ city.sno }}"><button type="button" class="btn btn-outline-success">Update</button></td></a>
-                <td><a href="/remove/{{ city.sno }}"><button type="button" class="btn btn-outline-danger">Remove</button></td></a>
+                <td><a href="/update/{{ city.sno }}"><button type="button" class="btn btn-outline-success"><b>Update</b></button></td></a>
+                <td><a href="/remove/{{ city.sno }}"><button type="button" class="btn btn-outline-danger"><b>Remove</b></button></td></a>
             </tr>
             {% endfor %}
             {%endif%}

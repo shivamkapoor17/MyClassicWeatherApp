@@ -1,11 +1,23 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="container">
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(category_filter = ['danger']) %}
     {% if messages %}
     {% for message in messages %}
     <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
         <strong>Invalid Credentials!</strong> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% with messages = get_flashed_messages(category_filter = ['success']) %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>Successful!</strong> {{message}}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
