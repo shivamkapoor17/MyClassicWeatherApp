@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+        <strong>Opps!</strong> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
+            <form class="container mt-4" action="#" method="post">
+                <h1 class="text-center">Enter Your Email</h1>
+                <div class="input-group mt-5">
+                    <input type="text" class="form-control" name="city" placeholder="Enter Your Email Here" aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
+                    <div class="input-group-append" id="button-addon4">
+                        <button class="btn btn-outline-primary" type="submit"><b>Request Password Reset</b></button>
+                    </div>  
+            </form>
+        </div>
+    </div>
+</div>
+<br><br><br><br>
+<br><br><br><br>
+{% endblock %}

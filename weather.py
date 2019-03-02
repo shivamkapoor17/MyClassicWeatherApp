@@ -128,6 +128,7 @@ def weather(username):
                 except ConnectionError:
                     flash('Please check the Internet connection', 'info')
                 else:
+                    print(r.url)
                     json_data = r.json()
 
                     if json_data['cod'] == 200:
@@ -224,6 +225,16 @@ def reset_password():
 
     return redirect(url_for('index'))
 
+
+@app.route('/password_reset_email', methods=['GET', 'POST'])
+def token_generator():
+
+    return render_template('email.html')
+
+@app.route('/reset_my_password', methods=['GET', 'POST'])
+def reset_my_password():
+
+    return render_template('reset_password.html')
 
 if __name__=="__main__":
     app.run(debug=True)
