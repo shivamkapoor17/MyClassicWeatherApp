@@ -38,15 +38,19 @@
                     <label for="exampleInputPassword1">Password</label>
                     <input type="password" class="form-control" name="password" id="exampleInputPassword1" placeholder="Password">
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Login</button> 
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" name="remember_me" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Login</button>
                 <small class="text-muted ml-2">
-                 <a href="/password_reset_email">Forget Password?</a>
+                    <a href="/password_reset_email">Forget Password?</a>
                 </small>
             </form>
             <br>
             <div>
-              <small class="text-muted ml-3">
-                 Need An Account?  <a href="/signup">Sign Up</a>
+                <small class="text-muted ml-3">
+                    Need An Account? <a href="/signup">Sign Up</a>
                 </small>
             </div>
         </div>

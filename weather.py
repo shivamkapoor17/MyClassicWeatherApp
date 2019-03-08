@@ -102,12 +102,19 @@ def login():
     if request.method == 'POST':
         username = request.form.get('uname')
         password = request.form.get('password')
+        remember_me = request.form.get('remember_me')
 
         user = User.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
-            session['user'] = user.username
-            return redirect(url_for('weather', username=user.username))
+            if remember_me == 'on':
+                session['user'] = user.username
+                session.permanent = True
+                return redirect(url_for('weather', username=user.username))
+            elif remember_me == None:
+                session['user'] = user.username
+                session.permanent = False
+                return redirect(url_for('weather', username=user.username))
 
         else:
             flash('Please enter correct Username and Password', 'danger')
