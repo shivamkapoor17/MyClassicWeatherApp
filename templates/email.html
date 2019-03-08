@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="container">
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(category_filter=["danger"]) %}
     {% if messages %}
     {% for message in messages %}
     <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
@@ -13,17 +13,48 @@
     {% endfor %}
     {% endif %}
     {% endwith %}
+    {% with messages = get_flashed_messages(category_filter=["warning"]) %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+        <b>{{message}}</b>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% with messages = get_flashed_messages(category_filter=["success"]) %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>Successful!</strong> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="row">
         <div class="col-lg-3"></div>
         <div class="col-lg-6">
-            <form class="container mt-4" action="#" method="post">
+            <form class="container mt-4" action="/password_reset_email" method="post">
                 <h1 class="text-center">Enter Your Email</h1>
                 <div class="input-group mt-5">
-                    <input type="text" class="form-control" name="city" placeholder="Enter Your Email Here" aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
+                    <input type="email" class="form-control" name="email" placeholder="Enter Your Email Here" aria-label="Recipient's username with two button addons" aria-describedby="button-addon4">
                     <div class="input-group-append" id="button-addon4">
                         <button class="btn btn-outline-primary" type="submit"><b>Request Password Reset</b></button>
-                    </div>  
+                    </div>
+                </div>
             </form>
+            <br>
+            <div>
+                <small class="text-muted ml-4">
+                    <a href="/">Go To Home Page</a>
+                </small>
+            </div>
         </div>
     </div>
 </div>

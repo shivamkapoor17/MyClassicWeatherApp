@@ -1,22 +1,34 @@
-# internet connection and city already added conflict
-# sql not start error
-# man kar gaya to forget password and confirm password
 
 from flask import Flask, flash, g, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_migrate import Migrate
+from flask_mail import Mail, Message
 import requests
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from requests.exceptions import ConnectionError
+from itsdangerous.exc import BadSignature
+from itsdangerous.exc import SignatureExpired
 import os
 
 app = Flask(__name__)
+
 app.config['SECRET_KEY'] = os.urandom(25)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('EMAIL')
+app.config['MAIL_PASSWORD'] = os.environ.get('PASS')
+mail = Mail(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/weather'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+
 
 class User(db.Model):
     sno = db.Column(db.Integer, primary_key=True)
@@ -76,8 +88,8 @@ def signup():
             except IntegrityError:
                 flash('Username already exists Please choose different Username ')
             else:
-                session['user'] = username
-                return redirect(url_for('weather', username=username))
+                flash('You are successfully registered', 'success')
+                return redirect(url_for('login'))
 
     return render_template('signup.html')
 
@@ -118,7 +130,8 @@ def weather(username):
             api_key = '8b39e46493302d8e2f48506253b2ae65'
 
             if city in list_of_cities:
-                flash("Please enter another city", 'warning')
+                flash("Please enter another city", 'info')
+                return redirect(url_for('weather', username=username))
             else:
                 payload = {'q': city, 'APPID': api_key}
                 url = f"https://api.openweathermap.org/data/2.5/weather"
@@ -126,9 +139,8 @@ def weather(username):
                 try:
                     r = requests.get(url, payload)
                 except ConnectionError:
-                    flash('Please check the Internet connection', 'info')
+                    flash('Please check the Internet connection', 'danger')
                 else:
-                    print(r.url)
                     json_data = r.json()
 
                     if json_data['cod'] == 200:
@@ -228,13 +240,84 @@ def reset_password():
 
 @app.route('/password_reset_email', methods=['GET', 'POST'])
 def token_generator():
+    if g.user:
+        return redirect(url_for('weather', username=g.user))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        if email == "":
+            flash('You missed to enter your Email', 'danger')
+            return redirect(url_for('token_generator'))
+        else:
+            user = User.query.filter_by(Email=email).first()
+            if not user:
+                flash('No user found with this email id. You must register first', 'danger')
+                return redirect(url_for('token_generator'))
+            else:
+                s = Serializer(app.config['SECRET_KEY'], 30)
+                token = s.dumps({'user_id': user.sno}).decode('utf-8')
+                link = url_for('reset_token', token=token, _external=True)
+
+                msg = Message(subject="Password Reset Request",
+                              sender='kapoor17kapoor@gmail.com',
+                              recipients=[user.Email])
+                msg.body = f'''to reset your password visit the following link:
+                {link}
+                
+                If you did not make this request then simply ignore this email and no changes will be made.
+                '''
+                try:
+                    mail.send(msg)
+                except:
+                    flash('Your internet connection is failed. Please check the internet connection', 'danger')
+                    return redirect(url_for('token_generator'))
+                else:
+                    flash('Email has been successfully sent on your mail id with password reset information', 'success')
+                    return redirect(url_for('login'))
 
     return render_template('email.html')
 
-@app.route('/reset_my_password', methods=['GET', 'POST'])
-def reset_my_password():
+def verify_token(token):
+    s = Serializer(app.config['SECRET_KEY'])
+    try:
+        data = s.loads(token)
+    except SignatureExpired:
+        return 'fizz'
+    except BadSignature:
+        return 'buzz'
+    sno = data['user_id']
+    return User.query.get(sno)
 
-    return render_template('reset_password.html')
+@app.route('/password_reset_email/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+    if g.user:
+        return redirect(url_for('weather', username=g.user))
+
+    user = verify_token(token)
+    if user == 'fizz':
+        flash('The token is Expired. Generate new token', 'warning')
+        return redirect(url_for('token_generator'))
+
+    if user == 'buzz':
+        flash('The token is Invalid. Generate new token', 'warning')
+        return redirect(url_for('token_generator'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('newpassword')
+        confirm_password = request.form.get('confirmpassword')
+
+        if new_password == '' or confirm_password == '':
+            flash('Please fill the form completely!', 'danger')
+        elif new_password != confirm_password:
+            flash('Put same password in both the password fields', 'danger')
+        else:
+            new_hashed_password = generate_password_hash(new_password, method='sha256')
+            user.password = new_hashed_password
+            db.session.commit()
+            flash('Your password is changed successfully. Now you can login with your new password', 'success')
+            return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
 
 if __name__=="__main__":
     app.run(debug=True)
