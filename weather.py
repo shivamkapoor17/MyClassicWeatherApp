@@ -3,7 +3,6 @@ from flask import Flask, flash, g, render_template, request, redirect, url_for, 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import requests
 from datetime import datetime
@@ -24,10 +23,8 @@ app.config['MAIL_USERNAME'] = os.environ.get('EMAIL')
 app.config['MAIL_PASSWORD'] = os.environ.get('PASS')
 mail = Mail(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/weather'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@localhost/database_name'
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
 
 
 class User(db.Model):
@@ -134,7 +131,7 @@ def weather(username):
 
         if request.method == 'POST':
             city = request.form.get('city')
-            api_key = '8b39e46493302d8e2f48506253b2ae65'
+            api_key = 'Your_Api_Key'
 
             if city in list_of_cities:
                 flash("Please enter another city", 'info')
@@ -180,7 +177,7 @@ def logout():
 def update(sno):
     if g.user:
         city = City.query.get(sno)
-        api_key = '8b39e46493302d8e2f48506253b2ae65'
+        api_key = 'Your_Api_Key'
         payload = {'q': city.city_name, 'APPID': api_key}
         url = f"https://api.openweathermap.org/data/2.5/weather"
         try:
@@ -261,12 +258,12 @@ def token_generator():
                 flash('No user found with this email id. You must register first', 'danger')
                 return redirect(url_for('token_generator'))
             else:
-                s = Serializer(app.config['SECRET_KEY'], 30)
+                s = Serializer(app.config['SECRET_KEY'], 1800)
                 token = s.dumps({'user_id': user.sno}).decode('utf-8')
                 link = url_for('reset_token', token=token, _external=True)
 
                 msg = Message(subject="Password Reset Request",
-                              sender='kapoor17kapoor@gmail.com',
+                              sender='yourEmail@company.com',
                               recipients=[user.Email])
                 msg.body = f'''to reset your password visit the following link:
                 {link}
